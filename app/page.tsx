@@ -28,7 +28,7 @@ export default function Home() {
         <Card>
           <p className="text-sm text-zinc-500">Diary entry</p>
           <h3 className="mt-2 text-lg font-semibold">Midnight Sketch — Nova Arcade</h3>
-          <p className="mt-2 text-sm text-zinc-600">"The bridge felt like driving home at 2am."</p>
+          <p className="mt-2 text-sm text-zinc-600">The bridge felt like driving home at 2am.</p>
         </Card>
         <Card>
           <p className="text-sm text-zinc-500">Taste profile</p>
