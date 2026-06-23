@@ -34,8 +34,16 @@ export function SignupForm() {
         });
 
         if (!response.ok) {
-          const data = (await response.json()) as { error?: string };
-          setError(data.error || "Could not create account.");
+          const data = (await response.json()) as {
+            error?: string | { message?: string };
+            message?: string;
+            errorMessage?: string;
+          };
+          const nextError =
+            typeof data.error === "string"
+              ? data.error
+              : data.error?.message || data.message || data.errorMessage || "Could not create account.";
+          setError(nextError);
           setLoading(false);
           return;
         }

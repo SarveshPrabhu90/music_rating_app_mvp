@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { apiClient } from "@/lib/api/client";
 
 type Recommendation = {
   id: string;
@@ -23,9 +24,8 @@ export function RecommendationsList() {
 
   useEffect(() => {
     void (async () => {
-      const response = await fetch("/api/recommendations");
-      const data = (await response.json()) as { recommendations: Recommendation[] };
-      setRows(data.recommendations ?? []);
+      const data = await apiClient.recommendationsGet();
+      setRows(data.recommendations as Recommendation[]);
       setLoading(false);
     })();
   }, []);
@@ -44,15 +44,12 @@ export function RecommendationsList() {
             <Button
               variant="secondary"
               onClick={async () => {
-                await fetch("/api/recommendations", {
-                  method: "PATCH",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ trackId: row.track.id, action: "save" }),
-                });
-                await fetch("/api/diary", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ trackId: row.track.id, tier: "LIKED", note: "Saved from recommendations", tags: ["discovery"] }),
+                await apiClient.recommendationsPatch({ trackId: row.track.id, action: "save" });
+                await apiClient.diaryCreate({
+                  trackId: row.track.id,
+                  tier: "LIKED",
+                  note: "Saved from recommendations",
+                  tags: ["discovery"],
                 });
                 setRows((current) => current.filter((item) => item.id !== row.id));
               }}
@@ -62,11 +59,7 @@ export function RecommendationsList() {
             <Button
               variant="ghost"
               onClick={async () => {
-                await fetch("/api/recommendations", {
-                  method: "PATCH",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ trackId: row.track.id, action: "dismiss" }),
-                });
+                await apiClient.recommendationsPatch({ trackId: row.track.id, action: "dismiss" });
                 setRows((current) => current.filter((item) => item.id !== row.id));
               }}
             >

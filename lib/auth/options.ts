@@ -1,8 +1,7 @@
-import bcrypt from "bcrypt";
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
-import { prisma } from "@/lib/db/prisma";
+import { authorizeCredentials } from "@/lib/auth/credentials";
 
 export const authOptions: NextAuthOptions = {
   session: { strategy: "jwt" },
@@ -16,33 +15,8 @@ export const authOptions: NextAuthOptions = {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials) {
-        if (!credentials?.email || !credentials.password) {
-          return null;
-        }
-
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email.toLowerCase() },
-        });
-
-        if (!user) {
-          return null;
-        }
-
-        const passwordMatches = await bcrypt.compare(
-          credentials.password,
-          user.passwordHash,
-        );
-
-        if (!passwordMatches) {
-          return null;
-        }
-
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-        };
+      async authorize(credentials, req) {
+        return authorizeCredentials(credentials, req);
       },
     }),
   ],
@@ -50,12 +24,14 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
+        token.subscriptionPlan = user.subscriptionPlan;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
+        session.user.subscriptionPlan = token.subscriptionPlan as typeof session.user.subscriptionPlan;
       }
       return session;
     },

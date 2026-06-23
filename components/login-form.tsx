@@ -31,7 +31,11 @@ export function LoginForm() {
         });
 
         if (result?.error) {
-          setError("Could not sign in. Check your credentials.");
+          setError(
+            result.error === "AUTH_RATE_LIMITED"
+              ? "Too many login attempts. Please try again later."
+              : "Could not sign in. Check your credentials.",
+          );
           setLoading(false);
           return;
         }

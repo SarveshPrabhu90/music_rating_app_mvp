@@ -47,6 +47,42 @@ A private-first music diary and ranking app. Log songs, rank what actually matte
 
 Open http://localhost:3000
 
+## Environment
+
+Create `.env` from `.env.example` and set:
+
+- `DATABASE_URL`: SQLite file or deployed database connection string
+- `NEXTAUTH_URL`: public base URL for Auth.js callbacks
+- `NEXTAUTH_SECRET`: session signing secret
+- `INTERNAL_JOB_SECRET`: bearer secret used by internal scheduled job routes
+
+## Background jobs
+
+The app includes two authenticated internal job endpoints:
+
+- `POST /api/internal/jobs/recommendations`
+- `POST /api/internal/jobs/weekly-recaps`
+
+Both require `Authorization: Bearer $INTERNAL_JOB_SECRET`.
+
+A scheduler-ready GitHub Actions workflow lives at `.github/workflows/internal-jobs.yml`.
+To enable it in production, configure these repository secrets:
+
+- `APP_BASE_URL`: deployed app URL, for example `https://your-app.example.com`
+- `INTERNAL_JOB_SECRET`: same secret value configured in the deployed app environment
+
+The workflow currently runs:
+
+- recommendation refresh hourly
+- weekly recap generation every Monday at 08:15 UTC
+
+Rollout checklist and verification steps are documented in `docs/internal-jobs-rollout.md`.
+After pushing workflow changes and setting secrets, you can manually trigger and watch a run with:
+
+```bash
+npm run ops:trigger-jobs
+```
+
 ## Demo login
 
 - email: `demo@musicdiary.app`
@@ -57,9 +93,11 @@ Open http://localhost:3000
 - `npm run dev`
 - `npm run build`
 - `npm run lint`
+- `npx prisma generate --config=./prisma.config.ts`
 - `npm run db:migrate`
 - `npm run db:seed`
 - `npm run db:studio`
+- `npm run ops:trigger-jobs`
 
 ## Ranking logic
 

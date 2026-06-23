@@ -6,6 +6,8 @@ import { Card } from "@/components/ui/card";
 import { tierLabels } from "@/lib/constants";
 import { requireUser } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
+import { buildComparisonCountMap } from "@/lib/ranking/personal-lists";
+import { calculateConfidence } from "@/lib/ranking/scoring";
 
 export default async function DashboardPage() {
   const user = await requireUser();
@@ -30,6 +32,27 @@ export default async function DashboardPage() {
       take: 1,
     }),
   ]);
+
+  const comparisons = await prisma.rankingComparison.findMany({
+    where: { userId: user.id },
+    select: { winnerTrackId: true, loserTrackId: true, delta: true, createdAt: true },
+    orderBy: { createdAt: "desc" },
+    take: 1200,
+  });
+  const comparisonCountMap = buildComparisonCountMap(comparisons);
+
+  const confidenceRows = rankings.map((row) => {
+    const comparisonCount = comparisonCountMap.get(row.trackId) ?? 0;
+    return {
+      comparisonCount,
+      confidence: calculateConfidence(comparisonCount),
+    };
+  });
+
+  const averageConfidence = confidenceRows.length
+    ? confidenceRows.reduce((sum, row) => sum + row.confidence, 0) / confidenceRows.length
+    : 0;
+  const unstableCount = confidenceRows.filter((row) => row.confidence < 0.45).length;
 
   const topTags = entries.flatMap((entry) => entry.tags.map((tag) => tag.tag.name)).slice(0, 4);
 
@@ -93,6 +116,9 @@ export default async function DashboardPage() {
           ) : (
             <p className="text-sm text-zinc-500">Your next pick appears here.</p>
           )}
+          <div className="pt-1 text-xs text-zinc-600">
+            Ranking confidence: {Math.round(averageConfidence * 100)}% • {unstableCount} songs still movable
+          </div>
         </Card>
       </section>
     </div>

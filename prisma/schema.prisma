@@ -21,12 +21,25 @@ enum RecommendationStatus {
   DISMISSED
 }
 
+enum RankingEntityType {
+  TRACK
+  ALBUM
+  ARTIST
+}
+
+enum SubscriptionPlan {
+  FREE
+  PLUS
+  PRO
+}
+
 model User {
   id             String            @id @default(cuid())
   email          String            @unique
   name           String
   passwordHash   String
   privacyDefault String            @default("private")
+  subscriptionPlan SubscriptionPlan @default(FREE)
   createdAt      DateTime          @default(now())
   updatedAt      DateTime          @updatedAt
   diaryEntries   DiaryEntry[]
@@ -34,6 +47,7 @@ model User {
   comparisons    RankingComparison[]
   recommendations Recommendation[]
   weeklyRecaps   WeeklyRecap[]
+  rankingSnapshots UserRankingSnapshot[]
 }
 
 model Artist {
@@ -157,4 +171,19 @@ model WeeklyRecap {
   topSong    Track?   @relation(fields: [topSongId], references: [id], onDelete: SetNull)
 
   @@unique([userId, weekStart])
+}
+
+model UserRankingSnapshot {
+  id         String            @id @default(cuid())
+  userId     String
+  entityType RankingEntityType
+  itemId     String
+  rank       Int
+  score      Float
+  confidence Float
+  capturedAt DateTime          @default(now())
+  user       User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, entityType, capturedAt])
+  @@index([userId, entityType, itemId, capturedAt])
 }

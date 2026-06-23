@@ -1,9 +1,13 @@
 import { Tier, type Track } from "@prisma/client";
 
+import { rankingWeight } from "@/lib/ranking/scoring";
+
 export type RankedInput = {
   track: Track;
   score: number;
   tier: Tier;
+  confidence: number;
+  comparisonCount: number;
 };
 
 export type RecommendationOutput = {
@@ -35,7 +39,12 @@ export function buildRecommendations({
     return [];
   }
 
-  const topTracks = [...rankedTracks].sort((a, b) => b.score - a.score).slice(0, 8);
+  const topTracks = [...rankedTracks]
+    .sort(
+      (a, b) =>
+        rankingWeight(b.score, b.confidence) - rankingWeight(a.score, a.confidence),
+    )
+    .slice(0, 8);
   const topGenres = new Set(topTracks.map((item) => item.track.genre));
   const topEras = new Set(topTracks.map((item) => item.track.era));
   const topArtistIds = new Set(topTracks.map((item) => item.track.artistId));
@@ -53,7 +62,11 @@ export function buildRecommendations({
 
       for (const ranked of topTracks) {
         if (ranked.track.albumId === track.albumId) score += 45;
-        score += tierBoost[ranked.tier] * (ranked.track.genre === track.genre ? 0.12 : 0.02);
+        const confidenceBias = 0.7 + ranked.confidence * 0.9;
+        score +=
+          tierBoost[ranked.tier] *
+          confidenceBias *
+          (ranked.track.genre === track.genre ? 0.12 : 0.02);
       }
 
       if (frequentTags.some((tag) => ["late night", "nostalgia", "focus"].includes(tag))) {
@@ -64,7 +77,9 @@ export function buildRecommendations({
 
       const reason = `Because you ranked ${anchor.track.title} as ${anchor.tier
         .replaceAll("_", " ")
-        .toLowerCase()} and often tag songs as ${frequentTags.slice(0, 2).join(" + ") || "discovery"}.`;
+        .toLowerCase()} with strong confidence and often tag songs as ${
+        frequentTags.slice(0, 2).join(" + ") || "discovery"
+      }.`;
 
       return { track, score, reason };
     })
