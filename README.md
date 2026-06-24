@@ -79,8 +79,9 @@ The workflow currently runs:
 - recommendation refresh hourly
 - weekly recap generation every Monday at 08:15 UTC
 
-Manual workflow dispatch now also runs an authenticated health check against
-`GET /api/internal/jobs/health` and fails if the job system is degraded.
+The workflow also runs an authenticated health check against
+`GET /api/internal/jobs/health` after each job trigger (manual and scheduled)
+and fails when the job system is degraded.
 
 Rollout checklist and verification steps are documented in `docs/internal-jobs-rollout.md`.
 After pushing workflow changes and setting secrets, you can manually trigger and watch a run with:
