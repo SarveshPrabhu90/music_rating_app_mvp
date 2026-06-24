@@ -40,3 +40,22 @@ jobs:
             -H "Authorization: Bearer $INTERNAL_JOB_SECRET" \
             -H "Content-Type: application/json" \
             -d '{"limit": 500}'
+
+  verify-jobs-health:
+    if: github.event_name == 'workflow_dispatch'
+    needs:
+      - refresh-recommendations
+      - generate-weekly-recaps
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify internal jobs health
+        env:
+          APP_BASE_URL: ${{ secrets.APP_BASE_URL }}
+          INTERNAL_JOB_SECRET: ${{ secrets.INTERNAL_JOB_SECRET }}
+        run: |
+          test -n "$APP_BASE_URL"
+          test -n "$INTERNAL_JOB_SECRET"
+          curl --fail --show-error --silent \
+            -X GET "$APP_BASE_URL/api/internal/jobs/health" \
+            -H "Authorization: Bearer $INTERNAL_JOB_SECRET" \
+            -H "Content-Type: application/json"

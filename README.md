@@ -62,8 +62,11 @@ The app includes two authenticated internal job endpoints:
 
 - `POST /api/internal/jobs/recommendations`
 - `POST /api/internal/jobs/weekly-recaps`
+- `GET /api/internal/jobs/health`
 
 Both require `Authorization: Bearer $INTERNAL_JOB_SECRET`.
+
+The health endpoint returns scheduler freshness signals for recommendations and weekly recaps.
 
 A scheduler-ready GitHub Actions workflow lives at `.github/workflows/internal-jobs.yml`.
 To enable it in production, configure these repository secrets:
@@ -75,6 +78,9 @@ The workflow currently runs:
 
 - recommendation refresh hourly
 - weekly recap generation every Monday at 08:15 UTC
+
+Manual workflow dispatch now also runs an authenticated health check against
+`GET /api/internal/jobs/health` and fails if the job system is degraded.
 
 Rollout checklist and verification steps are documented in `docs/internal-jobs-rollout.md`.
 After pushing workflow changes and setting secrets, you can manually trigger and watch a run with:
