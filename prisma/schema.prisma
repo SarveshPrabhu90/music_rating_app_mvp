@@ -33,21 +33,31 @@ enum SubscriptionPlan {
   PRO
 }
 
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+}
+
 model User {
-  id             String            @id @default(cuid())
-  email          String            @unique
-  name           String
-  passwordHash   String
-  privacyDefault String            @default("private")
-  subscriptionPlan SubscriptionPlan @default(FREE)
-  createdAt      DateTime          @default(now())
-  updatedAt      DateTime          @updatedAt
-  diaryEntries   DiaryEntry[]
-  trackScores    UserTrackScore[]
-  comparisons    RankingComparison[]
-  recommendations Recommendation[]
-  weeklyRecaps   WeeklyRecap[]
+  id                String                @id @default(cuid())
+  email             String                @unique
+  username          String                @unique
+  name              String
+  bio               String?
+  avatarUrl         String?
+  passwordHash      String
+  privacyDefault    String                @default("private")
+  subscriptionPlan  SubscriptionPlan      @default(FREE)
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
+  diaryEntries      DiaryEntry[]
+  trackScores       UserTrackScore[]
+  comparisons       RankingComparison[]
+  recommendations   Recommendation[]
+  weeklyRecaps      WeeklyRecap[]
   rankingSnapshots UserRankingSnapshot[]
+  sentFriendships   Friendship[]          @relation("FriendshipRequester")
+  receivedFriendships Friendship[]        @relation("FriendshipAddressee")
 }
 
 model Artist {
@@ -186,4 +196,19 @@ model UserRankingSnapshot {
 
   @@index([userId, entityType, capturedAt])
   @@index([userId, entityType, itemId, capturedAt])
+}
+
+model Friendship {
+  id          String           @id @default(cuid())
+  requesterId String
+  addresseeId String
+  status      FriendshipStatus @default(PENDING)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  requester   User             @relation("FriendshipRequester", fields: [requesterId], references: [id], onDelete: Cascade)
+  addressee   User             @relation("FriendshipAddressee", fields: [addresseeId], references: [id], onDelete: Cascade)
+
+  @@unique([requesterId, addresseeId])
+  @@index([requesterId, status])
+  @@index([addresseeId, status])
 }

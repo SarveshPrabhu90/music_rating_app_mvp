@@ -17,7 +17,8 @@ export function SettingsForm({ initialPrivacy }: { initialPrivacy: string }) {
     <div className="space-y-3">
       <Select value={privacy} onChange={(event) => setPrivacy(event.target.value)}>
         <option value="private">Private by default</option>
-        <option value="friends">Friends (coming soon)</option>
+        <option value="friends">Friends only</option>
+        <option value="public">Public</option>
       </Select>
       <Button
         type="button"

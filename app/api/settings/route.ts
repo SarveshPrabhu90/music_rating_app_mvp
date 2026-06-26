@@ -5,7 +5,7 @@ import { getAuthenticatedUserId } from "@/lib/auth/api-user";
 import { prisma } from "@/lib/db/prisma";
 
 const schema = z.object({
-  privacyDefault: z.enum(["private", "friends"]),
+  privacyDefault: z.enum(["private", "friends", "public"]),
 });
 
 export async function PATCH(request: Request) {

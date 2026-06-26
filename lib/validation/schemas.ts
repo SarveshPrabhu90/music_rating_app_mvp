@@ -29,3 +29,18 @@ export const recommendationActionSchema = z.object({
   trackId: z.string().min(1),
   action: z.enum(["save", "dismiss"]),
 });
+
+export const profileUpdateSchema = z.object({
+  username: z.string().trim().min(3).max(30).regex(/^[a-z0-9-]+$/),
+  name: z.string().trim().min(2).max(60),
+  bio: z.string().trim().max(240).optional().or(z.literal("")),
+  privacyDefault: z.enum(["private", "friends", "public"]),
+});
+
+export const friendRequestSchema = z.object({
+  username: z.string().trim().min(3).max(30),
+});
+
+export const friendshipActionSchema = z.object({
+  action: z.enum(["accept", "decline", "remove", "cancel"]),
+});

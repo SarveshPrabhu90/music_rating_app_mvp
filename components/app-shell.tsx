@@ -7,8 +7,11 @@ import { Button } from "@/components/ui/button";
 
 const links = [
   ["/dashboard", "Dashboard"],
+  ["/feed", "Feed"],
   ["/diary", "Diary"],
   ["/library", "Library"],
+  ["/friends", "Friends"],
+  ["/profile", "Profile"],
   ["/pairwise", "Pairwise"],
   ["/taste-profile", "Taste"],
   ["/recommendations", "Recs"],
@@ -37,8 +40,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       </header>
       <main className="mx-auto w-full max-w-6xl px-4 py-6 pb-20 md:pb-6">{children}</main>
-      <nav className="fixed bottom-0 left-0 right-0 z-20 grid grid-cols-4 gap-1 border-t border-zinc-200 bg-white p-2 md:hidden">
-        {links.slice(0, 4).map(([href, label]) => (
+      <nav className="fixed bottom-0 left-0 right-0 z-20 grid grid-cols-5 gap-1 border-t border-zinc-200 bg-white p-2 md:hidden">
+        {[links[0], links[1], links[2], links[4], links[5]].map(([href, label]) => (
           <Link key={href} href={href} className="rounded-lg px-2 py-2 text-center text-xs hover:bg-zinc-100">
             {label}
           </Link>

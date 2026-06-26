@@ -11,6 +11,7 @@ import {
   registerAuthFailure,
   resolveAuthAbuseConfig,
 } from "@/lib/security/auth-abuse";
+import { generateUniqueUsername } from "@/lib/social/usernames";
 import { signupSchema } from "@/lib/validation/schemas";
 
 export async function POST(request: Request) {
@@ -85,10 +86,15 @@ export async function POST(request: Request) {
   }
 
   const passwordHash = await bcrypt.hash(password, 10);
+  const username = await generateUniqueUsername(name, email, async (candidate) => {
+    const user = await prisma.user.findUnique({ where: { username: candidate }, select: { id: true } });
+    return Boolean(user);
+  });
 
   await prisma.user.create({
     data: {
       email: email.toLowerCase(),
+      username,
       name,
       passwordHash,
     },

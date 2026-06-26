@@ -9,7 +9,7 @@ export default async function SettingsPage() {
 
   const profile = await prisma.user.findUnique({
     where: { id: user.id },
-    select: { email: true, name: true, privacyDefault: true, subscriptionPlan: true },
+    select: { email: true, name: true, username: true, privacyDefault: true, subscriptionPlan: true },
   });
   const features = getPlanFeatures(profile?.subscriptionPlan);
 
@@ -18,7 +18,7 @@ export default async function SettingsPage() {
       <h1 className="text-3xl font-semibold">Settings</h1>
       <Card className="space-y-3">
         <p className="text-sm text-zinc-600">
-          Profile: {profile?.name} • {profile?.email}
+          Profile: {profile?.name} • @{profile?.username} • {profile?.email}
         </p>
         <p className="text-sm text-zinc-600">Plan: {profile?.subscriptionPlan ?? "FREE"}</p>
         <SettingsForm initialPrivacy={profile?.privacyDefault ?? "private"} />

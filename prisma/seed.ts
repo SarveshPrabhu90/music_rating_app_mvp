@@ -1,6 +1,8 @@
 import bcrypt from "bcrypt";
 import { PrismaClient, Tier } from "@prisma/client";
 
+import { generateUniqueUsername } from "@/lib/social/usernames";
+
 const prisma = new PrismaClient();
 
 const tierBase: Record<Tier, number> = {
@@ -72,6 +74,7 @@ function randomFrom<T>(items: T[], index: number) {
 }
 
 async function main() {
+  await prisma.friendship.deleteMany();
   await prisma.entryTag.deleteMany();
   await prisma.diaryEntry.deleteMany();
   await prisma.rankingComparison.deleteMany();
@@ -90,18 +93,37 @@ async function main() {
     prisma.user.create({
       data: {
         email: "demo@musicdiary.app",
+        username: await generateUniqueUsername("Demo Listener", "demo@musicdiary.app", async (candidate) => {
+          const user = await prisma.user.findUnique({ where: { username: candidate }, select: { id: true } });
+          return Boolean(user);
+        }),
         name: "Demo Listener",
+        bio: "Chasing perfect late-night synths and diarizing every replayable favorite.",
         passwordHash,
       },
     }),
     prisma.user.create({
       data: {
         email: "noa@musicdiary.app",
+        username: await generateUniqueUsername("Noa Parker", "noa@musicdiary.app", async (candidate) => {
+          const user = await prisma.user.findUnique({ where: { username: candidate }, select: { id: true } });
+          return Boolean(user);
+        }),
         name: "Noa Parker",
+        bio: "Keeps an exacting ranking list and loves reference tracks.",
+        privacyDefault: "friends",
         passwordHash,
       },
     }),
   ]);
+
+  await prisma.friendship.create({
+    data: {
+      requesterId: demoUser.id,
+      addresseeId: secondUser.id,
+      status: "ACCEPTED",
+    },
+  });
 
   const tags = await Promise.all(
     moodTags.map((name) => prisma.tasteTag.create({ data: { name } })),
