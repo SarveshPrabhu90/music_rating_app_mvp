@@ -18,7 +18,7 @@ export async function GET(request: Request) {
   const trace = createRequestTrace(request, "recommendations.get");
   trace.info("request.started");
 
-  const userId = await getAuthenticatedUserId();
+  const userId = await getAuthenticatedUserId(request);
   if (!userId) {
     trace.complete(401, { outcome: "unauthorized" });
     return unauthorized(trace.requestId);
@@ -36,7 +36,7 @@ export async function PATCH(request: Request) {
   const trace = createRequestTrace(request, "recommendations.patch");
   trace.info("request.started");
 
-  const userId = await getAuthenticatedUserId();
+  const userId = await getAuthenticatedUserId(request);
   if (!userId) {
     trace.complete(401, { outcome: "unauthorized" });
     return unauthorized(trace.requestId);

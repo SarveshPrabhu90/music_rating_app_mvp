@@ -8,7 +8,7 @@ export async function GET(request: Request) {
   const trace = createRequestTrace(request, "weekly_recap.get");
   trace.info("request.started");
 
-  const userId = await getAuthenticatedUserId();
+  const userId = await getAuthenticatedUserId(request);
   if (!userId) {
     trace.complete(401, { outcome: "unauthorized" });
     return unauthorized(trace.requestId);

@@ -11,7 +11,7 @@ export async function PATCH(
   const trace = createRequestTrace(request, "friends.patch");
   trace.info("request.started");
 
-  const userId = await getAuthenticatedUserId();
+  const userId = await getAuthenticatedUserId(request);
   if (!userId) {
     trace.complete(401, { outcome: "unauthorized" });
     return unauthorized(trace.requestId);

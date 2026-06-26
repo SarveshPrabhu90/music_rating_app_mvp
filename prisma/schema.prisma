@@ -58,6 +58,7 @@ model User {
   rankingSnapshots UserRankingSnapshot[]
   sentFriendships   Friendship[]          @relation("FriendshipRequester")
   receivedFriendships Friendship[]        @relation("FriendshipAddressee")
+  mobileSessions    MobileSession[]
 }
 
 model Artist {
@@ -211,4 +212,19 @@ model Friendship {
   @@unique([requesterId, addresseeId])
   @@index([requesterId, status])
   @@index([addresseeId, status])
+}
+
+model MobileSession {
+  id         String   @id @default(cuid())
+  userId     String
+  name       String?
+  tokenHash  String   @unique
+  expiresAt  DateTime
+  lastUsedAt DateTime @default(now())
+  revokedAt  DateTime?
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, expiresAt])
+  @@index([expiresAt, revokedAt])
 }

@@ -18,7 +18,7 @@ export async function DELETE(request: Request) {
   const trace = createRequestTrace(request, "settings.account.delete");
   trace.info("request.started");
 
-  const userId = await getAuthenticatedUserId();
+  const userId = await getAuthenticatedUserId(request);
   if (!userId) {
     trace.complete(401, { outcome: "unauthorized" });
     return unauthorized(trace.requestId);

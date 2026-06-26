@@ -56,6 +56,19 @@ Create `.env` from `.env.example` and set:
 - `NEXTAUTH_SECRET`: session signing secret
 - `INTERNAL_JOB_SECRET`: bearer secret used by internal scheduled job routes
 
+## Mobile-ready API
+
+The backend supports first-class bearer-token authentication for native iOS and Android clients.
+
+- `POST /api/mobile/session`: exchange email/password for a mobile bearer token
+- `GET /api/mobile/session`: fetch current mobile-authenticated user
+- `DELETE /api/mobile/session`: revoke the current mobile bearer token
+- `GET /api/mobile/bootstrap`: fetch current user, plan features, and app-start summary counts
+
+Authenticated app APIs now accept `Authorization: Bearer <token>` in addition to the existing web session cookie.
+
+See `docs/mobile-api.md` for the mobile client contract.
+
 ## Background jobs
 
 The app includes two authenticated internal job endpoints:

@@ -11,7 +11,7 @@ export async function POST(request: Request) {
   const trace = createRequestTrace(request, "diary.create");
   trace.info("request.started");
 
-  const userId = await getAuthenticatedUserId();
+  const userId = await getAuthenticatedUserId(request);
   if (!userId) {
     trace.complete(401, { outcome: "unauthorized" });
     return unauthorized(trace.requestId);

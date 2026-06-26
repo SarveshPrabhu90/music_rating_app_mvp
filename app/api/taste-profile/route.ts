@@ -1,12 +1,18 @@
-import { NextResponse } from "next/server";
-
 import { getAuthenticatedUserId } from "@/lib/auth/api-user";
+import { success, unauthorized } from "@/lib/api/response";
 import { prisma } from "@/lib/db/prisma";
 import { summarizeTaste } from "@/lib/insights";
+import { createRequestTrace } from "@/lib/observability/request-trace";
 
-export async function GET() {
-  const userId = await getAuthenticatedUserId();
-  if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+export async function GET(request: Request) {
+  const trace = createRequestTrace(request, "taste_profile.get");
+  trace.info("request.started");
+
+  const userId = await getAuthenticatedUserId(request);
+  if (!userId) {
+    trace.complete(401, { outcome: "unauthorized" });
+    return unauthorized(trace.requestId);
+  }
 
   const [scores, entries] = await Promise.all([
     prisma.userTrackScore.findMany({ where: { userId } }),
@@ -28,5 +34,6 @@ export async function GET() {
     entryTags: entries.flatMap((entry) => entry.tags),
   });
 
-  return NextResponse.json(insight);
+  trace.complete(200, { outcome: "success" });
+  return success(insight, { requestId: trace.requestId });
 }

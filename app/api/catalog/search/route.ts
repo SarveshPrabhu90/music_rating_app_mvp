@@ -1,11 +1,17 @@
-import { NextResponse } from "next/server";
-
 import { getAuthenticatedUserId } from "@/lib/auth/api-user";
+import { success, unauthorized } from "@/lib/api/response";
 import { prisma } from "@/lib/db/prisma";
+import { createRequestTrace } from "@/lib/observability/request-trace";
 
 export async function GET(request: Request) {
-  const userId = await getAuthenticatedUserId();
-  if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const trace = createRequestTrace(request, "catalog.search");
+  trace.info("request.started");
+
+  const userId = await getAuthenticatedUserId(request);
+  if (!userId) {
+    trace.complete(401, { outcome: "unauthorized" });
+    return unauthorized(trace.requestId);
+  }
 
   const url = new URL(request.url);
   const q = url.searchParams.get("q")?.trim() ?? "";
@@ -25,5 +31,6 @@ export async function GET(request: Request) {
     take: 20,
   });
 
-  return NextResponse.json({ tracks });
+  trace.complete(200, { outcome: "success", trackCount: tracks.length });
+  return success({ tracks }, { requestId: trace.requestId });
 }

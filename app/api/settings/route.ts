@@ -1,20 +1,28 @@
-import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { getAuthenticatedUserId } from "@/lib/auth/api-user";
+import { invalidPayload, success, unauthorized } from "@/lib/api/response";
 import { prisma } from "@/lib/db/prisma";
+import { createRequestTrace } from "@/lib/observability/request-trace";
 
 const schema = z.object({
   privacyDefault: z.enum(["private", "friends", "public"]),
 });
 
 export async function PATCH(request: Request) {
-  const userId = await getAuthenticatedUserId();
-  if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const trace = createRequestTrace(request, "settings.patch");
+  trace.info("request.started");
+
+  const userId = await getAuthenticatedUserId(request);
+  if (!userId) {
+    trace.complete(401, { outcome: "unauthorized" });
+    return unauthorized(trace.requestId);
+  }
 
   const parsed = schema.safeParse(await request.json());
   if (!parsed.success) {
-    return NextResponse.json({ error: "Invalid payload." }, { status: 400 });
+    trace.complete(400, { outcome: "invalid_payload" });
+    return invalidPayload("Invalid payload.", parsed.error.flatten(), trace.requestId);
   }
 
   await prisma.user.update({
@@ -22,5 +30,6 @@ export async function PATCH(request: Request) {
     data: { privacyDefault: parsed.data.privacyDefault },
   });
 
-  return NextResponse.json({ ok: true });
+  trace.complete(200, { outcome: "success" });
+  return success({ saved: true }, { requestId: trace.requestId });
 }
