@@ -8,7 +8,16 @@ import { clearToken, getToken } from "@/lib/storage";
 type SessionState = {
   ready: boolean;
   authenticated: boolean;
-  user: null | { id: string; name: string; username: string; subscriptionPlan: string };
+  user: null | {
+    id: string;
+    email: string;
+    username: string;
+    name: string;
+    bio: string | null;
+    avatarUrl: string | null;
+    privacyDefault: string;
+    subscriptionPlan?: string;
+  };
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   refresh: () => Promise<void>;

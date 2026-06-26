@@ -10,14 +10,24 @@
       "typedRoutes": true
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      "expo-notifications"
     ],
+    "extra": {
+      "eas": {
+        "projectId": "replace-with-your-eas-project-id"
+      }
+    },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "app.basso.mobile"
+      "bundleIdentifier": "app.basso.mobile",
+      "infoPlist": {
+        "NSUserTrackingUsageDescription": "Basso uses notifications to remind you about new recommendations and weekly recaps."
+      }
     },
     "android": {
-      "package": "app.basso.mobile"
+      "package": "app.basso.mobile",
+      "googleServicesFile": "./google-services.json"
     }
   }
 }
