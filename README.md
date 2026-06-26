@@ -56,6 +56,10 @@ Create `.env` from `.env.example` and set:
 - `NEXTAUTH_SECRET`: session signing secret
 - `INTERNAL_JOB_SECRET`: bearer secret used by internal scheduled job routes
 
+Optional for push delivery:
+
+- `EXPO_ACCESS_TOKEN`: Expo access token for authenticated push API usage
+
 ## Mobile-ready API
 
 The backend supports first-class bearer-token authentication for native iOS and Android clients.
@@ -76,10 +80,11 @@ An Expo Router mobile shell is included under `apps/mobile/` and wired to the sa
 
 ## Background jobs
 
-The app includes two authenticated internal job endpoints:
+The app includes authenticated internal job endpoints:
 
 - `POST /api/internal/jobs/recommendations`
 - `POST /api/internal/jobs/weekly-recaps`
+- `POST /api/internal/jobs/push-dispatch`
 - `GET /api/internal/jobs/health`
 
 Both require `Authorization: Bearer $INTERNAL_JOB_SECRET`.
@@ -95,7 +100,9 @@ To enable it in production, configure these repository secrets:
 The workflow currently runs:
 
 - recommendation refresh hourly
+- recommendation push dispatch hourly (after recommendation refresh)
 - weekly recap generation every Monday at 08:15 UTC
+- weekly recap push dispatch every Monday at 08:15 UTC (after recap generation)
 
 The workflow also runs an authenticated health check against
 `GET /api/internal/jobs/health` after each job trigger (manual and scheduled)
@@ -118,6 +125,9 @@ npm run ops:trigger-jobs
 - `npm run dev`
 - `npm run build`
 - `npm run lint`
+- `npm run mobile:typecheck`
+- `npm run mobile:lint`
+- `npm run mobile:doctor`
 - `npx prisma generate --config=./prisma.config.ts`
 - `npm run db:migrate`
 - `npm run db:seed`
@@ -155,5 +165,5 @@ Each recommendation includes a readable reason string.
 - Apple Music import
 - Friend taste comparison
 - Shareable recap cards
-- Mobile app
+- Mobile push delivery pipeline and deep linking
 - More advanced recommendation model

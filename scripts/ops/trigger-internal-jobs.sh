@@ -35,4 +35,4 @@ fi
 echo "Watching run ${RUN_ID}"
 gh run watch "${RUN_ID}"
 
-echo "Done. If successful, both internal job triggers ran."
+echo "Done. If successful, all internal job triggers ran."

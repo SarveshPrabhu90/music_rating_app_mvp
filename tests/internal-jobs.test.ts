@@ -1,11 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import * as pushDispatchJobRoute from "@/app/api/internal/jobs/push-dispatch/route";
 import * as recommendationsJobRoute from "@/app/api/internal/jobs/recommendations/route";
 import * as weeklyRecapJobRoute from "@/app/api/internal/jobs/weekly-recaps/route";
 
-const { mockRefreshRecommendationsJob, mockGenerateWeeklyRecapsJob } = vi.hoisted(() => ({
+const { mockRefreshRecommendationsJob, mockGenerateWeeklyRecapsJob, mockDispatchPushNotificationsJob } = vi.hoisted(() => ({
   mockRefreshRecommendationsJob: vi.fn(),
   mockGenerateWeeklyRecapsJob: vi.fn(),
+  mockDispatchPushNotificationsJob: vi.fn(),
 }));
 
 vi.mock("@/lib/jobs/recommendations", () => ({
@@ -15,6 +17,10 @@ vi.mock("@/lib/jobs/recommendations", () => ({
 vi.mock("@/lib/jobs/weekly-recaps", () => ({
   generateWeeklyRecapsJob: mockGenerateWeeklyRecapsJob,
   getWeekStart: (date: Date) => date,
+}));
+
+vi.mock("@/lib/jobs/push-dispatch", () => ({
+  dispatchPushNotificationsJob: mockDispatchPushNotificationsJob,
 }));
 
 function createJobRequest(url: string, payload?: unknown, auth = "Bearer secret") {
@@ -74,5 +80,49 @@ describe("internal job routes", () => {
     expect(response.status).toBe(200);
     expect(body.data?.processedUsers).toBe(1);
     expect(mockGenerateWeeklyRecapsJob).toHaveBeenCalledWith({ userIds: ["user_1"] });
+  });
+
+  it("rejects push dispatch jobs without valid auth", async () => {
+    const response = await pushDispatchJobRoute.POST(
+      createJobRequest("http://localhost/api/internal/jobs/push-dispatch", {}, "Bearer wrong"),
+    );
+    const body = (await response.json()) as { ok: boolean; error?: { code?: string } };
+
+    expect(response.status).toBe(403);
+    expect(body.error?.code).toBe("FORBIDDEN");
+  });
+
+  it("dispatches the push notification job", async () => {
+    mockDispatchPushNotificationsJob.mockResolvedValue({
+      campaign: "recommendations",
+      sinceHours: 3,
+      targetedUsers: 2,
+      queuedTokens: 2,
+      sentCount: 2,
+      failedCount: 0,
+      invalidatedTokens: 0,
+      dryRun: false,
+    });
+
+    const response = await pushDispatchJobRoute.POST(
+      createJobRequest("http://localhost/api/internal/jobs/push-dispatch", {
+        campaign: "recommendations",
+        sinceHours: 3,
+        limit: 10,
+      }),
+    );
+    const body = (await response.json()) as {
+      ok: boolean;
+      data?: { campaign: string; queuedTokens: number; sentCount: number };
+    };
+
+    expect(response.status).toBe(200);
+    expect(body.data?.campaign).toBe("recommendations");
+    expect(body.data?.sentCount).toBe(2);
+    expect(mockDispatchPushNotificationsJob).toHaveBeenCalledWith({
+      campaign: "recommendations",
+      sinceHours: 3,
+      limit: 10,
+    });
   });
 });

@@ -22,19 +22,19 @@ Build a monetizable, production-grade personal music ranking app with dynamic ta
 - [ ] Define subscription tiers (Free, Plus, Pro)
 - [x] Build entitlement middleware and feature gating
 - [ ] Integrate Stripe for web billing
-- [ ] Integrate RevenueCat for mobile subscription sync
+- [x] Integrate RevenueCat-compatible mobile subscription sync webhook
 - [ ] Add paywall experiments and conversion analytics
 
 ## Phase 4: Mobile App Delivery
 - [x] Choose stack: React Native Expo or native apps
 - [x] Move auth/session handling to mobile-safe token flow
 - [x] Build shared API SDK for web and mobile clients
-- [~] Deliver parity for core flows:
+- [x] Deliver parity for core flows:
   - Diary logging
   - Pairwise calibration
   - Library ranking views
   - Recommendations and save/dismiss actions
-- [ ] Add push notifications (weekly recap, new recommendations)
+- [~] Add push notifications (weekly recap, new recommendations)
 
 ## Phase 5: Release Quality
 - [ ] Test strategy: unit + integration + E2E on CI
@@ -54,6 +54,6 @@ Build a monetizable, production-grade personal music ranking app with dynamic ta
   - Recommendation CTR and save-rate targets met
 
 ## Immediate Next Build Steps
-1. Add mobile parity screens for diary logging, pairwise, rankings, and recommendations in Expo.
-2. Add push notifications and deep linking support.
+1. Add push dispatch jobs for weekly recap/recommendation events using stored device tokens.
+2. Add deep linking and notification tap navigation flows in the Expo app.
 3. Add E2E coverage for mobile auth + bootstrap + dashboard flows.

@@ -8,6 +8,10 @@ In your deployed app environment, set:
 
 - `INTERNAL_JOB_SECRET`: a strong random secret shared with GitHub Actions.
 
+Optional for authenticated Expo push sends:
+
+- `EXPO_ACCESS_TOKEN`: Expo access token used by push dispatch jobs.
+
 ## 2) Configure GitHub repository secrets
 
 From the repo root, run:
@@ -41,11 +45,14 @@ This dispatches `.github/workflows/internal-jobs.yml` and watches the latest run
 
 - Recommendations endpoint should return refreshed rows for active users.
 - Weekly recap endpoint should contain generated recap data for the current week.
-- GitHub Actions logs should show successful `curl --fail` calls to both internal routes.
+- Push dispatch endpoint should report queued and sent token counts.
+- GitHub Actions logs should show successful `curl --fail` calls to recommendation, weekly recap, and push dispatch routes.
 
 ## 6) Ongoing schedule
 
 Configured cadence in workflow:
 
 - Hourly recommendation refresh
+- Hourly recommendation push dispatch (after recommendation refresh)
 - Weekly recap generation every Monday at 08:15 UTC
+- Weekly recap push dispatch every Monday at 08:15 UTC (after recap generation)
