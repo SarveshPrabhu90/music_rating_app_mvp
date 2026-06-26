@@ -59,6 +59,7 @@ model User {
   sentFriendships   Friendship[]          @relation("FriendshipRequester")
   receivedFriendships Friendship[]        @relation("FriendshipAddressee")
   mobileSessions    MobileSession[]
+  devicePushTokens  DevicePushToken[]
 }
 
 model Artist {
@@ -227,4 +228,16 @@ model MobileSession {
 
   @@index([userId, expiresAt])
   @@index([expiresAt, revokedAt])
+}
+
+model DevicePushToken {
+  id         String   @id @default(cuid())
+  userId     String
+  token      String   @unique
+  platform   String
+  lastSeenAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, platform])
 }

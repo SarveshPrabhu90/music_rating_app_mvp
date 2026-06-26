@@ -64,11 +64,15 @@ The backend supports first-class bearer-token authentication for native iOS and 
 - `GET /api/mobile/session`: fetch current mobile-authenticated user
 - `DELETE /api/mobile/session`: revoke the current mobile bearer token
 - `GET /api/mobile/bootstrap`: fetch current user, plan features, and app-start summary counts
+- `GET /api/mobile/dashboard`: fetch native home/dashboard payload with feed preview
+- `POST /api/mobile/push-tokens`: register a mobile push token
+- `POST /api/mobile/subscription/webhook`: sync mobile subscription plan updates
 - `GET /api/dashboard`: fetch the signed-in home/dashboard payload for web or native clients
 
 Authenticated app APIs now accept `Authorization: Bearer <token>` in addition to the existing web session cookie.
 
 See `docs/mobile-api.md` for the mobile client contract.
+An Expo Router mobile shell is included under `apps/mobile/` and wired to the same bearer-token backend.
 
 ## Background jobs
 

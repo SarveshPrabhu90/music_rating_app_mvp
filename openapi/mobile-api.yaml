@@ -159,6 +159,24 @@ paths:
       responses:
         '200':
           description: Dashboard payload
+  /api/mobile/push-tokens:
+    post:
+      summary: Register a device push token
+      responses:
+        '200':
+          description: Push token registered
+    delete:
+      summary: Remove a device push token
+      responses:
+        '200':
+          description: Push token removed
+  /api/mobile/subscription/webhook:
+    post:
+      security: []
+      summary: Sync mobile subscription state from provider webhook
+      responses:
+        '200':
+          description: Subscription synced
   /api/feed:
     get:
       summary: Get friend activity feed

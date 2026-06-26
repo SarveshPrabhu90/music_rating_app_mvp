@@ -31,11 +31,22 @@ Authorization: Bearer <token>
 - plan/feature flags
 - ratings, rankings, friends, and recommendations counts
 
+`GET /api/mobile/dashboard` returns:
+
+- dashboard summary cards
+- recommendation pulse
+- feed preview
+- ratings/rankings/friends counts
+
 ## Recommended mobile routes
 
 - `GET /api/mobile/bootstrap`
+- `GET /api/mobile/dashboard`
 - `GET /api/dashboard`
 - `GET /api/mobile/session`
+- `POST /api/mobile/push-tokens`
+- `DELETE /api/mobile/push-tokens`
+- `POST /api/mobile/subscription/webhook`
 - `PATCH /api/profile`
 - `GET /api/feed`
 - `GET /api/friends`
@@ -55,3 +66,4 @@ Authorization: Bearer <token>
 - Mobile tokens are stored server-side and can be revoked.
 - Current token lifetime is 30 days.
 - Web keeps using NextAuth session cookies; native apps can use bearer tokens against the same product APIs.
+- An Expo Router mobile shell is available under `apps/mobile/`.

@@ -1,5 +1,6 @@
 import { API_BASE_URL } from "@/lib/config";
 import { clearToken, getToken, setToken } from "@/lib/storage";
+import { createMobileSdk } from "../../../packages/mobile-sdk/src";
 
 type Envelope<T> = {
   ok: boolean;
@@ -89,4 +90,62 @@ export const mobileApi = {
       `/api/people/search?q=${encodeURIComponent(query)}`,
     );
   },
+  searchCatalog(query: string) {
+    return request<{ tracks: Array<{ id: string; title: string; genre: string; artist: { name: string }; album: { title: string } }> }>(
+      `/api/catalog/search?q=${encodeURIComponent(query)}`,
+    );
+  },
+  createDiaryEntry(payload: { trackId: string; tier: "LIFE_SONG" | "ELITE" | "HEAVY_ROTATION" | "LIKED" | "NOT_FOR_ME"; note?: string; tags: string[] }) {
+    return request<{ entryId: string; score: number; shouldPromptPlacement: boolean }>("/api/diary", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+  },
+  getRankings() {
+    return request<{
+      rankings: Array<{
+        rank: number;
+        trackId: string;
+        score: number;
+        tier: "LIFE_SONG" | "ELITE" | "HEAVY_ROTATION" | "LIKED" | "NOT_FOR_ME";
+        confidence: number;
+        comparisonCount: number;
+        track: { id: string; title: string; albumArtUrl: string; artist: { name: string }; album: { title: string } };
+      }>;
+    }>("/api/rankings");
+  },
+  patchRanking(trackId: string, tier: "LIFE_SONG" | "ELITE" | "HEAVY_ROTATION" | "LIKED" | "NOT_FOR_ME") {
+    return request<{ score: number }>("/api/rankings", {
+      method: "PATCH",
+      body: JSON.stringify({ trackId, tier }),
+    });
+  },
+  deleteRanking(trackId: string) {
+    return request<{ removed: boolean }>(`/api/rankings?trackId=${encodeURIComponent(trackId)}`, {
+      method: "DELETE",
+    });
+  },
+  createPairwise(payload: { leftTrackId: string; rightTrackId: string; winnerTrackId: string }) {
+    return request<{ delta: number; kFactor: number; winnerConfidence: number; loserConfidence: number }>("/api/pairwise", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+  },
+  getRecommendations() {
+    return request<{ recommendations: Array<{ id: string; reason: string; track: { id: string; title: string; artist: { name: string } } }> }>("/api/recommendations");
+  },
+  patchRecommendation(payload: { trackId: string; action: "save" | "dismiss" }) {
+    return request<{ updated: true }>("/api/recommendations", {
+      method: "PATCH",
+      body: JSON.stringify(payload),
+    });
+  },
+  registerPushToken(payload: { token: string; platform: "ios" | "android" }) {
+    return request<{ registered: true }>("/api/mobile/push-tokens", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+  },
 };
+
+export const sharedSdk = createMobileSdk({ baseUrl: API_BASE_URL, getToken });

@@ -1,5 +1,6 @@
+import { Link } from "expo-router";
 import { useEffect, useState } from "react";
-import { View } from "react-native";
+import { Pressable, View } from "react-native";
 
 import { Card } from "@/components/card";
 import { Screen } from "@/components/screen";
@@ -50,6 +51,21 @@ export default function DashboardScreen() {
         {data?.feedPreview.length ? data.feedPreview.map((item) => (
           <Copy key={item.id}>{item.text}</Copy>
         )) : <Copy>No friend activity yet.</Copy>}
+      </Card>
+
+      <Card>
+        <Title>Core flows</Title>
+        <View style={{ gap: 10 }}>
+          {["/diary", "/rankings", "/pairwise", "/recommendations"].map((href) => (
+            <Link key={href} href={href as never} asChild>
+              <Pressable style={{ borderRadius: 12, backgroundColor: "#18181b", padding: 14 }}>
+                <Title style={{ color: "#fafafa", fontSize: 16 }}>
+                  {href === "/diary" ? "Open diary" : href === "/rankings" ? "Open rankings" : href === "/pairwise" ? "Open pairwise" : "Open recommendations"}
+                </Title>
+              </Pressable>
+            </Link>
+          ))}
+        </View>
       </Card>
     </Screen>
   );
