@@ -1,0 +1,23 @@
+{
+  "expo": {
+    "name": "Basso",
+    "slug": "basso-mobile",
+    "scheme": "basso",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "experiments": {
+      "typedRoutes": true
+    },
+    "plugins": [
+      "expo-router"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "app.basso.mobile"
+    },
+    "android": {
+      "package": "app.basso.mobile"
+    }
+  }
+}

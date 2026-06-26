@@ -64,6 +64,7 @@ The backend supports first-class bearer-token authentication for native iOS and 
 - `GET /api/mobile/session`: fetch current mobile-authenticated user
 - `DELETE /api/mobile/session`: revoke the current mobile bearer token
 - `GET /api/mobile/bootstrap`: fetch current user, plan features, and app-start summary counts
+- `GET /api/dashboard`: fetch the signed-in home/dashboard payload for web or native clients
 
 Authenticated app APIs now accept `Authorization: Bearer <token>` in addition to the existing web session cookie.
 

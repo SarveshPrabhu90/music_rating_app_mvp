@@ -34,6 +34,7 @@ Authorization: Bearer <token>
 ## Recommended mobile routes
 
 - `GET /api/mobile/bootstrap`
+- `GET /api/dashboard`
 - `GET /api/mobile/session`
 - `PATCH /api/profile`
 - `GET /api/feed`

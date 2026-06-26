@@ -1,0 +1,219 @@
+openapi: 3.1.0
+info:
+  title: Basso Mobile API
+  version: 1.0.0
+  description: Mobile-facing API contract for native iOS and Android clients.
+servers:
+  - url: https://music-rating-app-mvp.vercel.app
+security:
+  - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: opaque
+  schemas:
+    EnvelopeMeta:
+      type: object
+      properties:
+        requestId:
+          type: string
+    ErrorPayload:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details: {}
+    MobileSessionCreateRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+        deviceName:
+          type: string
+    MobileSessionCreateResponse:
+      type: object
+      required: [token, expiresAt, user]
+      properties:
+        token:
+          type: string
+        expiresAt:
+          type: string
+          format: date-time
+        user:
+          type: object
+          required: [id, email, name]
+          properties:
+            id: { type: string }
+            email: { type: string, format: email }
+            name: { type: string }
+            subscriptionPlan: { type: string }
+    MobileBootstrapResponse:
+      type: object
+      required: [user, features, counts]
+      properties:
+        user:
+          type: object
+          required: [id, email, username, name, privacyDefault, subscriptionPlan]
+          properties:
+            id: { type: string }
+            email: { type: string, format: email }
+            username: { type: string }
+            name: { type: string }
+            bio: { type: [string, 'null'] }
+            avatarUrl: { type: [string, 'null'] }
+            privacyDefault: { type: string }
+            subscriptionPlan: { type: string }
+        features:
+          type: object
+          additionalProperties:
+            type: boolean
+        counts:
+          type: object
+          required: [ratings, rankings, friends, recommendations]
+          properties:
+            ratings: { type: integer }
+            rankings: { type: integer }
+            friends: { type: integer }
+            recommendations: { type: integer }
+    MobileDashboardResponse:
+      type: object
+      required: [summary, feedPreview, counts]
+      properties:
+        summary:
+          type: object
+        feedPreview:
+          type: array
+          items:
+            type: object
+        counts:
+          type: object
+          properties:
+            ratings: { type: integer }
+            rankings: { type: integer }
+            friends: { type: integer }
+    PublicProfileResponse:
+      type: object
+      required: [id, name, username, privacyDefault, createdAt, friendship, topRankings, recentRatings]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        username: { type: string }
+        bio: { type: [string, 'null'] }
+        avatarUrl: { type: [string, 'null'] }
+        privacyDefault: { type: string }
+        createdAt: { type: string, format: date-time }
+        friendship:
+          type: object
+          properties:
+            isFriend: { type: boolean }
+        topRankings:
+          type: array
+          items:
+            type: object
+        recentRatings:
+          type: array
+          items:
+            type: object
+paths:
+  /api/mobile/session:
+    post:
+      security: []
+      summary: Create mobile session token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MobileSessionCreateRequest'
+      responses:
+        '200':
+          description: Token issued
+    get:
+      summary: Get current authenticated mobile user
+      responses:
+        '200':
+          description: Current user
+    delete:
+      summary: Revoke current mobile token
+      responses:
+        '200':
+          description: Token revoked
+  /api/mobile/bootstrap:
+    get:
+      summary: Get app bootstrap payload
+      responses:
+        '200':
+          description: Bootstrap payload
+  /api/mobile/dashboard:
+    get:
+      summary: Get mobile home screen payload
+      responses:
+        '200':
+          description: Dashboard payload
+  /api/feed:
+    get:
+      summary: Get friend activity feed
+      responses:
+        '200':
+          description: Feed payload
+  /api/friends:
+    get:
+      summary: Get friends and requests
+      responses:
+        '200':
+          description: Friend graph payload
+    post:
+      summary: Send friend request
+      responses:
+        '200':
+          description: Friend request created
+  /api/friends/{friendshipId}:
+    patch:
+      summary: Accept, decline, cancel, or remove friendship
+      parameters:
+        - in: path
+          name: friendshipId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Friendship updated
+  /api/people/search:
+    get:
+      summary: Search discoverable users
+      parameters:
+        - in: query
+          name: q
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Search results
+  /api/profile:
+    patch:
+      summary: Update current user profile
+      responses:
+        '200':
+          description: Profile updated
+  /api/profile/{username}:
+    get:
+      summary: Get public or friend-visible profile by username
+      parameters:
+        - in: path
+          name: username
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Profile payload

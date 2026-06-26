@@ -26,10 +26,10 @@ Build a monetizable, production-grade personal music ranking app with dynamic ta
 - [ ] Add paywall experiments and conversion analytics
 
 ## Phase 4: Mobile App Delivery
-- [ ] Choose stack: React Native Expo or native apps
-- [ ] Move auth/session handling to mobile-safe token flow
-- [ ] Build shared API SDK for web and mobile clients
-- [ ] Deliver parity for core flows:
+- [x] Choose stack: React Native Expo or native apps
+- [x] Move auth/session handling to mobile-safe token flow
+- [x] Build shared API SDK for web and mobile clients
+- [~] Deliver parity for core flows:
   - Diary logging
   - Pairwise calibration
   - Library ranking views
@@ -54,6 +54,6 @@ Build a monetizable, production-grade personal music ranking app with dynamic ta
   - Recommendation CTR and save-rate targets met
 
 ## Immediate Next Build Steps
-1. Add API response envelope consistency and typed client SDK.
-2. Add automated tests around diary, pairwise, tier changes, and recommendation actions.
-3. Add subscription and entitlement scaffolding before mobile client implementation.
+1. Add mobile parity screens for diary logging, pairwise, rankings, and recommendations in Expo.
+2. Add push notifications and deep linking support.
+3. Add E2E coverage for mobile auth + bootstrap + dashboard flows.
